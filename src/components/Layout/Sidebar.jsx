@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   TrendingUp,
@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Scissors,
   ShoppingBag,
+  X,
 } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 
@@ -24,14 +25,17 @@ const NAV_ITEMS = [
 ]
 
 export default function Sidebar() {
-  const { sidebarOpen, setSidebarOpen } = useApp()
+  const { sidebarOpen, setSidebarOpen, mobileSidebarOpen, setMobileSidebarOpen } = useApp()
 
   return (
     <aside
       className={`
-        relative flex flex-col h-screen bg-charcoal-light border-r border-gold/10
+        flex flex-col h-screen bg-charcoal-light border-r border-gold/10
         transition-all duration-300 ease-in-out flex-shrink-0
-        ${sidebarOpen ? 'w-60' : 'w-16'}
+        fixed inset-y-0 left-0 z-50 w-64
+        ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:relative md:z-auto md:translate-x-0
+        ${sidebarOpen ? 'md:w-60' : 'md:w-16'}
       `}
     >
       {/* Logo */}
@@ -39,8 +43,8 @@ export default function Sidebar() {
         <div className="w-8 h-8 flex-shrink-0 bg-gold rounded-lg flex items-center justify-center shadow-lg shadow-gold/20">
           <span className="font-serif font-bold text-charcoal text-sm">L</span>
         </div>
-        {sidebarOpen && (
-          <div className="overflow-hidden">
+        {(sidebarOpen || mobileSidebarOpen) && (
+          <div className="overflow-hidden flex-1">
             <div className="font-serif font-bold text-cream text-sm leading-none tracking-wide whitespace-nowrap">
               LOOMANCE
             </div>
@@ -49,15 +53,22 @@ export default function Sidebar() {
             </div>
           </div>
         )}
+        {/* Mobile close button */}
+        <button
+          onClick={() => setMobileSidebarOpen(false)}
+          className="md:hidden ml-auto p-1 rounded-lg text-cream-muted hover:text-cream hover:bg-white/10 transition-colors"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden">
-        {renderNavItems(NAV_ITEMS, sidebarOpen)}
+        {renderNavItems(NAV_ITEMS, sidebarOpen || mobileSidebarOpen, () => setMobileSidebarOpen(false))}
       </nav>
 
-      {/* Business unit legend (visible when open) */}
-      {sidebarOpen && (
+      {/* Business unit legend */}
+      {(sidebarOpen || mobileSidebarOpen) && (
         <div className="px-4 py-4 border-t border-gold/10 space-y-2">
           <div className="flex items-center gap-2 text-[10px] text-cream-muted tracking-widest uppercase">
             <ShoppingBag size={11} className="text-gold" />
@@ -70,11 +81,11 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Toggle button */}
+      {/* Desktop collapse toggle */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="absolute -right-3 top-[72px] w-6 h-6 bg-charcoal-light border border-gold/20 rounded-full
-                   flex items-center justify-center text-gold hover:bg-gold hover:text-charcoal
+        className="hidden md:flex absolute -right-3 top-[72px] w-6 h-6 bg-charcoal-light border border-gold/20 rounded-full
+                   items-center justify-center text-gold hover:bg-gold hover:text-charcoal
                    transition-all duration-200 shadow-lg z-10"
       >
         {sidebarOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
@@ -83,10 +94,10 @@ export default function Sidebar() {
   )
 }
 
-function renderNavItems(items, open) {
+function renderNavItems(items, open, onNavClick) {
   let lastSection = null
 
-  return items.map((item, idx) => {
+  return items.map((item) => {
     const showSection = item.section && item.section !== lastSection
     if (item.section) lastSection = item.section
 
@@ -101,12 +112,13 @@ function renderNavItems(items, open) {
         )}
         <NavLink
           to={item.to}
+          onClick={onNavClick}
           className={({ isActive }) => `
             flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm
             transition-all duration-200 group relative
             ${isActive
               ? 'bg-gold/15 text-gold border border-gold/20'
-              : 'text-cream-muted hover:text-cream hover:bg-white/5'
+              : 'text-cream-muted hover:text-cream hover:bg-cream/5'
             }
           `}
           title={!open ? item.label : undefined}

@@ -30,10 +30,10 @@ export default function Dashboard() {
   if (loadingTx) return <Spinner />
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
       {/* Greeting */}
       <div>
-        <h2 className="font-serif text-3xl text-gradient-gold">
+        <h2 className="font-serif text-2xl sm:text-3xl text-gradient-gold">
           {unitLabel(businessUnit)}
         </h2>
         <p className="text-cream-muted text-sm mt-1">

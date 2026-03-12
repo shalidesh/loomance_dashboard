@@ -1,7 +1,9 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider } from './context/AppContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout/Layout'
+import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Income from './pages/Income'
 import Expenses from './pages/Expenses'
@@ -14,7 +16,15 @@ export default function App() {
     <AppProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout />}>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="income" element={<Income />} />
@@ -23,6 +33,7 @@ export default function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="history" element={<History />} />
           </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </AppProvider>

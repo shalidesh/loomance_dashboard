@@ -299,7 +299,7 @@ export default function Income() {
   const isShop = tab === 'shop'
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gold/10">
         <TabButton active={isShop} onClick={() => { setTab('shop'); setShowForm(false); setEditItem(null) }} icon={ShoppingBag}>
@@ -311,13 +311,13 @@ export default function Income() {
       </div>
 
       {/* Header row */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="section-title">{isShop ? 'Shop Income' : 'Garment Sub-Orders'}</h2>
-          <p className="section-subtitle">{isShop ? 'Sales from clothing items' : 'Manufacturing order tracking'}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="section-title truncate">{isShop ? 'Shop Income' : 'Garment Sub-Orders'}</h2>
+          <p className="section-subtitle hidden sm:block">{isShop ? 'Sales from clothing items' : 'Manufacturing order tracking'}</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditItem(null) }} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Add {isShop ? 'Income' : 'Order'}
+        <button onClick={() => { setShowForm(true); setEditItem(null) }} className="btn-primary flex items-center gap-2 flex-shrink-0">
+          <Plus size={16} /> <span className="hidden sm:inline">Add </span>{isShop ? 'Income' : 'Order'}
         </button>
       </div>
 
@@ -328,7 +328,8 @@ export default function Income() {
             <EmptyState title="No shop income yet" description="Record your first clothing sale by clicking Add Income." />
           ) : (
             <div className="card overflow-hidden">
-              <table className="w-full text-sm">
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full text-sm">
                 <thead>
                   <tr className="border-b border-gold/10">
                     <Th>Date</Th><Th>Item</Th><Th>Qty</Th><Th>Unit Price</Th>
@@ -354,6 +355,25 @@ export default function Income() {
                   ))}
                 </tbody>
               </table>
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-gold/5">
+                {shopIncome.map((t) => (
+                  <div key={t.id} className="px-4 py-3 income-row flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-cream text-sm font-medium truncate">{t.description}</p>
+                      <p className="text-cream-muted text-xs mt-0.5">{formatDate(t.date)} · {t.metadata?.paymentMethod || '—'}</p>
+                      {t.metadata?.quantity && (
+                        <p className="text-cream-dark text-[10px] mt-0.5">Qty {t.metadata.quantity} × {formatCurrency(t.metadata.unitPrice)}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <span className="text-green-400 font-semibold text-sm">{formatCurrency(t.amount)}</span>
+                      <ActionBtn icon={Edit2} onClick={() => { setEditItem(t); setShowForm(false) }} />
+                      <ActionBtn icon={Trash2} danger onClick={() => setDeleteTarget({ id: t.id, type: 'shop' })} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>
@@ -366,7 +386,8 @@ export default function Income() {
             <EmptyState title="No garment orders yet" description="Add your first manufacturing sub-order." />
           ) : (
             <div className="card overflow-hidden">
-              <table className="w-full text-sm">
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full text-sm">
                 <thead>
                   <tr className="border-b border-gold/10">
                     <Th>Date</Th><Th>Client</Th><Th>Description</Th><Th>Order Value</Th>
@@ -393,6 +414,39 @@ export default function Income() {
                   ))}
                 </tbody>
               </table>
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-gold/5">
+                {orders.map((o) => (
+                  <div key={o.id} className="px-4 py-3 income-row">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-cream text-sm font-medium">{o.clientName}</p>
+                        <p className="text-cream-muted text-xs mt-0.5 truncate">{o.description || '—'}</p>
+                        <p className="text-cream-dark text-[10px] mt-0.5">{formatDate(o.date)}</p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <StatusBadge status={o.status} />
+                        <ActionBtn icon={Edit2} onClick={() => { setEditItem(o); setShowForm(false) }} />
+                        <ActionBtn icon={Trash2} danger onClick={() => setDeleteTarget({ id: o.id, type: 'garment' })} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      <div className="bg-charcoal/30 rounded p-1.5 text-center">
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Value</p>
+                        <p className="text-gold text-xs font-medium">{formatCurrency(o.orderValue)}</p>
+                      </div>
+                      <div className="bg-charcoal/30 rounded p-1.5 text-center">
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Advance</p>
+                        <p className="text-cream text-xs">{formatCurrency(o.advancePaid)}</p>
+                      </div>
+                      <div className="bg-charcoal/30 rounded p-1.5 text-center">
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Balance</p>
+                        <p className={`text-xs ${o.balanceDue > 0 ? 'text-yellow-400' : 'text-green-400'}`}>{formatCurrency(o.balanceDue)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>

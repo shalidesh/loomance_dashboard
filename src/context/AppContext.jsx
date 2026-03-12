@@ -10,9 +10,25 @@ export function useApp() {
 }
 
 export function AppProvider({ children }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('auth') === 'true')
   const [businessUnit, setBusinessUnit] = useState('all') // 'all' | 'shop' | 'garment'
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+
+  function login(username, password) {
+    if (username === 'admin' && password === 'loomance2024') {
+      localStorage.setItem('auth', 'true')
+      setIsAuthenticated(true)
+      return true
+    }
+    return false
+  }
+
+  function logout() {
+    localStorage.removeItem('auth')
+    setIsAuthenticated(false)
+  }
 
   useEffect(() => {
     const root = document.documentElement
@@ -80,10 +96,15 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider
       value={{
+        isAuthenticated,
+        login,
+        logout,
         businessUnit,
         setBusinessUnit,
         sidebarOpen,
         setSidebarOpen,
+        mobileSidebarOpen,
+        setMobileSidebarOpen,
         theme,
         toggleTheme,
         transactions,

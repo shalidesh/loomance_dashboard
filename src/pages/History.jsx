@@ -172,7 +172,7 @@ export default function History() {
   }
 
   return (
-    <div className="p-6 space-y-5 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-5 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -263,7 +263,8 @@ export default function History() {
       ) : (
         <>
           <div className="card overflow-hidden">
-            <table className="w-full text-sm">
+            {/* Desktop table */}
+            <table className="hidden sm:table w-full text-sm">
               <thead>
                 <tr className="border-b border-gold/10 sticky top-0 bg-charcoal-light">
                   <Th>Date</Th>
@@ -333,6 +334,38 @@ export default function History() {
                 ))}
               </tbody>
             </table>
+            {/* Mobile cards */}
+            <div className="sm:hidden divide-y divide-gold/5">
+              {paginated.map((t) => (
+                <div key={t.id} className={`px-4 py-3 flex items-start justify-between gap-2 ${t.type === 'income' ? 'income-row' : 'expense-row'}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-cream text-sm truncate">{t.description || '—'}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="bg-charcoal/60 border border-gold/10 text-cream-muted px-1.5 py-0.5 rounded text-[10px]">
+                        {t.category || '—'}
+                      </span>
+                      <span className="text-cream-dark text-[10px] uppercase tracking-wide">
+                        {t.businessUnit === 'shop' ? 'Shop' : 'Garment'}
+                      </span>
+                      <span className="text-cream-dark text-[10px]">{formatDate(t.date)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className={`font-semibold text-sm ${t.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
+                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                    </span>
+                    <button onClick={() => setEditItem(t)}
+                      className="p-1.5 rounded hover:text-gold hover:bg-gold/10 text-cream-dark transition-colors">
+                      <Edit2 size={12} />
+                    </button>
+                    <button onClick={() => setDeleteTarget(t.id)}
+                      className="p-1.5 rounded hover:text-red-400 hover:bg-red-400/10 text-cream-dark transition-colors">
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Pagination */}

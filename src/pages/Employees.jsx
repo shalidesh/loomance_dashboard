@@ -296,39 +296,39 @@ export default function Employees() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h2 className="section-title">Employees</h2>
-          <p className="section-subtitle">Garment division workforce management</p>
+          <p className="section-subtitle hidden sm:block">Garment division workforce management</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
+        <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 flex-shrink-0">
           <Plus size={16} /> Add Employee
         </button>
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="card p-4 flex items-center gap-3">
-          <Users size={20} className="text-gold" />
-          <div>
-            <p className="text-cream-dark text-[10px] uppercase tracking-widest">Total Staff</p>
-            <p className="text-cream font-serif text-xl">{employees.length}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="card p-2 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <Users size={16} className="text-gold flex-shrink-0 sm:w-5 sm:h-5" />
+          <div className="min-w-0">
+            <p className="text-cream-dark text-[8px] sm:text-[10px] uppercase tracking-widest truncate">Staff</p>
+            <p className="text-cream font-serif text-base sm:text-xl">{employees.length}</p>
           </div>
         </div>
-        <div className="card p-4 flex items-center gap-3">
-          <Wallet size={20} className="text-red-400" />
-          <div>
-            <p className="text-cream-dark text-[10px] uppercase tracking-widest">This Month Wages</p>
-            <p className="text-red-400 font-serif text-lg">{formatCurrency(thisMonthWages)}</p>
+        <div className="card p-2 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <Wallet size={16} className="text-red-400 flex-shrink-0 sm:w-5 sm:h-5" />
+          <div className="min-w-0">
+            <p className="text-cream-dark text-[8px] sm:text-[10px] uppercase tracking-widest truncate">This Month</p>
+            <p className="text-red-400 font-serif text-sm sm:text-lg truncate">{formatCurrency(thisMonthWages)}</p>
           </div>
         </div>
-        <div className="card p-4 flex items-center gap-3">
-          <Wallet size={20} className="text-gold" />
-          <div>
-            <p className="text-cream-dark text-[10px] uppercase tracking-widest">Total Wages Paid</p>
-            <p className="text-gold font-serif text-lg">{formatCurrency(wageHistory.reduce((s, t) => s + (Number(t.amount) || 0), 0))}</p>
+        <div className="card p-2 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <Wallet size={16} className="text-gold flex-shrink-0 sm:w-5 sm:h-5" />
+          <div className="min-w-0">
+            <p className="text-cream-dark text-[8px] sm:text-[10px] uppercase tracking-widest truncate">Total Paid</p>
+            <p className="text-gold font-serif text-sm sm:text-lg truncate">{formatCurrency(wageHistory.reduce((s, t) => s + (Number(t.amount) || 0), 0))}</p>
           </div>
         </div>
       </div>
@@ -358,7 +358,8 @@ export default function Employees() {
           <div>
             <h3 className="font-serif text-lg text-cream mb-4">Wage Payment History</h3>
             <div className="card overflow-hidden">
-              <table className="w-full text-sm">
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full text-sm">
                 <thead>
                   <tr className="border-b border-gold/10">
                     <Th>Date</Th><Th>Employee</Th><Th>Period</Th><Th>Amount</Th>
@@ -375,6 +376,18 @@ export default function Employees() {
                   ))}
                 </tbody>
               </table>
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-gold/5">
+                {wageHistory.slice(0, 20).map((t) => (
+                  <div key={t.id} className="px-4 py-3 expense-row flex items-center justify-between gap-2">
+                    <div>
+                      <p className="text-cream text-sm font-medium">{t.metadata?.employeeName || '—'}</p>
+                      <p className="text-cream-muted text-xs mt-0.5">{t.metadata?.month} {t.metadata?.year} · {formatDate(t.date)}</p>
+                    </div>
+                    <span className="text-red-400 font-semibold text-sm flex-shrink-0">{formatCurrency(t.amount)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </>

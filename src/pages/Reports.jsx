@@ -90,7 +90,7 @@ export default function Reports() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
       <div>
         <h2 className="section-title">Financial Reports</h2>
         <p className="section-subtitle">Generate and export period-based financial summaries</p>
@@ -142,16 +142,16 @@ export default function Reports() {
         </div>
 
         {/* Export buttons */}
-        <div className="flex items-center justify-between pt-2 border-t border-gold/10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gold/10">
           <p className="text-cream-muted text-xs">
             <span className="text-gold font-medium">{filtered.length}</span> transactions found
           </p>
-          <div className="flex items-center gap-3">
-            <button onClick={handleCSV} className="btn-secondary flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <button onClick={handleCSV} className="btn-secondary flex items-center gap-2 text-xs flex-1 sm:flex-none justify-center">
               <FileSpreadsheet size={14} /> Export CSV
             </button>
             <button onClick={handlePDF} disabled={exporting || filtered.length === 0}
-              className="btn-primary flex items-center gap-2 text-xs disabled:opacity-50">
+              className="btn-primary flex items-center gap-2 text-xs disabled:opacity-50 flex-1 sm:flex-none justify-center">
               {exporting ? (
                 <div className="w-3.5 h-3.5 border border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
               ) : <FileText size={14} />}
@@ -193,10 +193,11 @@ export default function Reports() {
           {/* Category Breakdown */}
           {categoryBreakdown.length > 0 && (
             <div className="card overflow-hidden">
-              <div className="px-5 py-4 border-b border-gold/10">
+              <div className="px-4 sm:px-5 py-4 border-b border-gold/10">
                 <h3 className="font-serif text-lg text-cream">Category Breakdown</h3>
               </div>
-              <table className="w-full text-sm">
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full text-sm">
                 <thead>
                   <tr className="border-b border-gold/10">
                     <Th>Category</Th><Th>Income</Th><Th>Expenses</Th><Th>Net</Th>
@@ -217,16 +218,39 @@ export default function Reports() {
                   ))}
                 </tbody>
               </table>
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-gold/5">
+                {categoryBreakdown.map((row) => (
+                  <div key={row.category} className="px-4 py-3">
+                    <p className="text-cream text-sm font-medium mb-2">{row.category}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Income</p>
+                        <p className="text-green-400 text-xs">{row.income > 0 ? formatCurrency(row.income) : '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Expenses</p>
+                        <p className="text-red-400 text-xs">{row.expense > 0 ? formatCurrency(row.expense) : '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-cream-dark text-[9px] uppercase tracking-wider">Net</p>
+                        <p className={`text-xs ${row.net >= 0 ? 'text-gold' : 'text-red-400'}`}>{formatCurrency(row.net)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Transaction list preview */}
           <div className="card overflow-hidden">
-            <div className="px-5 py-4 border-b border-gold/10 flex items-center justify-between">
+            <div className="px-4 sm:px-5 py-4 border-b border-gold/10 flex items-center justify-between">
               <h3 className="font-serif text-lg text-cream">Transactions</h3>
               <span className="text-cream-muted text-xs">{filtered.length} entries</span>
             </div>
-            <table className="w-full text-sm">
+            {/* Desktop table */}
+            <table className="hidden sm:table w-full text-sm">
               <thead>
                 <tr className="border-b border-gold/10">
                   <Th>Date</Th><Th>Unit</Th><Th>Category</Th><Th>Description</Th><Th>Type</Th><Th>Amount</Th>
@@ -253,6 +277,24 @@ export default function Reports() {
                 ))}
               </tbody>
             </table>
+            {/* Mobile cards */}
+            <div className="sm:hidden divide-y divide-gold/5">
+              {filtered.map((t) => (
+                <div key={t.id} className={`px-4 py-3 flex items-start justify-between gap-2 ${t.type === 'income' ? 'income-row' : 'expense-row'}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-cream text-sm truncate">{t.description || '—'}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-cream-dark text-[10px] uppercase tracking-wide">{t.businessUnit === 'shop' ? 'Shop' : 'Garment'}</span>
+                      <span className="text-cream-muted text-[10px]">{t.category || '—'}</span>
+                      <span className="text-cream-dark text-[10px]">{formatDate(t.date)}</span>
+                    </div>
+                  </div>
+                  <span className={`font-semibold text-sm flex-shrink-0 ${t.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
+                    {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}

@@ -253,7 +253,7 @@ export default function Expenses() {
   const expenses = isShop ? shopExpenses : garmentExpenses
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gold/10">
         <TabButton active={isShop} onClick={() => { setTab('shop'); setShowForm(false); setEditItem(null) }} icon={ShoppingBag}>
@@ -265,12 +265,12 @@ export default function Expenses() {
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="section-title">{isShop ? 'Shop Expenses' : 'Garment Expenses'}</h2>
-          <p className="section-subtitle">{isShop ? 'Stock purchases & operational costs' : 'Materials, wages & manufacturing costs'}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="section-title truncate">{isShop ? 'Shop Expenses' : 'Garment Expenses'}</h2>
+          <p className="section-subtitle hidden sm:block">{isShop ? 'Stock purchases & operational costs' : 'Materials, wages & manufacturing costs'}</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditItem(null) }} className="btn-primary flex items-center gap-2">
+        <button onClick={() => { setShowForm(true); setEditItem(null) }} className="btn-primary flex items-center gap-2 flex-shrink-0">
           <Plus size={16} /> Add Expense
         </button>
       </div>
@@ -285,7 +285,8 @@ export default function Expenses() {
         <EmptyState title="No expenses recorded" description="Track your first expense by clicking Add Expense." />
       ) : (
         <div className="card overflow-hidden">
-          <table className="w-full text-sm">
+          {/* Desktop table */}
+          <table className="hidden sm:table w-full text-sm">
             <thead>
               <tr className="border-b border-gold/10">
                 <Th>Date</Th><Th>Category</Th><Th>Description</Th><Th>Payment</Th><Th>Amount</Th><Th />
@@ -309,6 +310,28 @@ export default function Expenses() {
               ))}
             </tbody>
           </table>
+          {/* Mobile cards */}
+          <div className="sm:hidden divide-y divide-gold/5">
+            {expenses.map((t) => (
+              <div key={t.id} className="px-4 py-3 expense-row flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-cream text-sm font-medium truncate">{t.description}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <CategoryBadge category={t.category} />
+                    <span className="text-cream-dark text-[10px]">{formatDate(t.date)}</span>
+                  </div>
+                  {t.metadata?.paymentMethod && (
+                    <p className="text-cream-dark text-[10px] mt-0.5">{t.metadata.paymentMethod}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className="text-red-400 font-semibold text-sm">{formatCurrency(t.amount)}</span>
+                  <ActionBtn icon={Edit2} onClick={() => { setEditItem(t); setShowForm(false) }} />
+                  <ActionBtn icon={Trash2} danger onClick={() => setDeleteTarget(t.id)} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
