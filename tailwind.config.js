@@ -4,18 +4,19 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         charcoal: {
-          DEFAULT: '#1a1a2e',
-          light: '#16213e',
-          lighter: '#0f3460',
+          DEFAULT: 'rgb(var(--color-charcoal) / <alpha-value>)',
+          light: 'rgb(var(--color-charcoal-light) / <alpha-value>)',
+          lighter: 'rgb(var(--color-charcoal-lighter) / <alpha-value>)',
         },
         cream: {
-          DEFAULT: '#f5f0e8',
-          muted: '#b8a99a',
-          dark: '#8a7a6e',
+          DEFAULT: 'rgb(var(--color-cream) / <alpha-value>)',
+          muted: 'rgb(var(--color-cream-muted) / <alpha-value>)',
+          dark: 'rgb(var(--color-cream-dark) / <alpha-value>)',
         },
         gold: {
           DEFAULT: '#c9a96e',
@@ -24,8 +25,8 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"Roboto Slab"', 'Georgia', 'serif'],
+        sans: ['"Roboto"', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

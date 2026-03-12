@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { getAllTransactions, getAllEmployees, getAllOrders } from '../firebase/services'
 
 const AppContext = createContext(null)
@@ -12,6 +12,19 @@ export function useApp() {
 export function AppProvider({ children }) {
   const [businessUnit, setBusinessUnit] = useState('all') // 'all' | 'shop' | 'garment'
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
   const [transactions, setTransactions] = useState([])
   const [employees, setEmployees] = useState([])
   const [orders, setOrders] = useState([])
@@ -71,6 +84,8 @@ export function AppProvider({ children }) {
         setBusinessUnit,
         sidebarOpen,
         setSidebarOpen,
+        theme,
+        toggleTheme,
         transactions,
         setTransactions,
         filteredTransactions,

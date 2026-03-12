@@ -1,5 +1,6 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
+import { Sun, Moon } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 
 const PAGE_TITLES = {
@@ -19,7 +20,7 @@ const UNIT_BUTTONS = [
 
 export default function Header() {
   const { pathname } = useLocation()
-  const { businessUnit, setBusinessUnit } = useApp()
+  const { businessUnit, setBusinessUnit, theme, toggleTheme } = useApp()
   const page = PAGE_TITLES[pathname] || { title: 'Loomance', sub: '' }
 
   return (
@@ -30,23 +31,36 @@ export default function Header() {
         <p className="text-cream-muted text-xs mt-0.5 tracking-wide">{page.sub}</p>
       </div>
 
-      {/* Business unit filter */}
-      <div className="flex items-center bg-charcoal-light border border-gold/15 rounded-xl p-1 gap-0.5">
-        {UNIT_BUTTONS.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setBusinessUnit(key)}
-            className={`
-              px-3 py-1.5 rounded-lg text-xs font-medium tracking-wide transition-all duration-200
-              ${businessUnit === key
-                ? 'bg-gold/20 text-gold border border-gold/30 shadow-sm'
-                : 'text-cream-muted hover:text-cream hover:bg-white/5'
-              }
-            `}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="flex items-center gap-3">
+        {/* Business unit filter */}
+        <div className="flex items-center bg-charcoal-light border border-gold/15 rounded-xl p-1 gap-0.5">
+          {UNIT_BUTTONS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setBusinessUnit(key)}
+              className={`
+                px-3 py-1.5 rounded-lg text-xs font-medium tracking-wide transition-all duration-200
+                ${businessUnit === key
+                  ? 'bg-gold/20 text-gold border border-gold/30 shadow-sm'
+                  : 'text-cream-muted hover:text-cream hover:bg-cream/5'
+                }
+              `}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="w-9 h-9 flex items-center justify-center rounded-xl border border-gold/20
+                     bg-charcoal-light text-cream-muted hover:text-gold hover:border-gold/40
+                     transition-all duration-200"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
       </div>
     </header>
   )
