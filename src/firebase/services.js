@@ -5,8 +5,11 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  getDoc,
+  setDoc,
   query,
   orderBy,
+  where,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore'
@@ -124,4 +127,69 @@ export async function updateOrder(id, data) {
 
 export async function deleteOrder(id) {
   await deleteDoc(doc(db, 'orders', id))
+}
+
+// ─── Attendance ───────────────────────────────────────────────────────────────
+
+function mapAttendanceDoc(d) {
+  const data = d.data()
+  return {
+    id: d.id,
+    ...data,
+    date: data.date?.toDate?.() ?? null,
+    // checkIn / checkOut remain as plain strings
+  }
+}
+
+export async function saveAttendanceRecord(employeeId, dateStr, data) {
+  const docId = `${employeeId}_${dateStr}`
+  const monthKey = dateStr.slice(0, 7) // 'YYYY-MM'
+  await setDoc(doc(db, 'attendance', docId), {
+    employeeId,
+    monthKey,
+    date: Timestamp.fromDate(new Date(dateStr + 'T12:00:00')),
+    ...data,
+    regularHours: Number(data.regularHours || 0),
+    overtimeHours: Number(data.overtimeHours || 0),
+    updatedAt: serverTimestamp(),
+  }, { merge: true })
+  return docId
+}
+
+export async function getAttendanceForDate(employeeIds, dateStr) {
+  const refs = employeeIds.map(id => doc(db, 'attendance', `${id}_${dateStr}`))
+  const snaps = await Promise.all(refs.map(r => getDoc(r)))
+  return snaps.filter(s => s.exists()).map(mapAttendanceDoc)
+}
+
+export async function getAttendanceForMonth(monthKey) {
+  const q = query(collection(db, 'attendance'), where('monthKey', '==', monthKey))
+  const snap = await getDocs(q)
+  return snap.docs
+    .map(mapAttendanceDoc)
+    .sort((a, b) => (a.date || 0) - (b.date || 0))
+}
+
+export async function deleteAttendanceRecord(docId) {
+  await deleteDoc(doc(db, 'attendance', docId))
+}
+
+// ─── Attendance Settings ──────────────────────────────────────────────────────
+
+export async function getAttendanceSettings() {
+  const snap = await getDoc(doc(db, 'settings', 'attendance'))
+  return snap.exists() ? snap.data() : { workStart: '09:00', workEnd: '17:00' }
+}
+
+export async function saveAttendanceSettings(data) {
+  await setDoc(doc(db, 'settings', 'attendance'), data)
+}
+
+// ─── Employee Rates ───────────────────────────────────────────────────────────
+
+export async function updateEmployeeRates(id, hourlyRate, overtimeRate) {
+  await updateDoc(doc(db, 'employees', id), {
+    hourlyRate: Number(hourlyRate || 0),
+    overtimeRate: Number(overtimeRate || 0),
+  })
 }

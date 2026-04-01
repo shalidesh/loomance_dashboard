@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/income', icon: TrendingUp, label: 'Income', section: 'TRANSACTIONS' },
   { to: '/expenses', icon: TrendingDown, label: 'Expenses', section: null },
   { to: '/employees', icon: Users, label: 'Employees', section: 'GARMENT' },
+  { to: '/attendance', icon: Clock, label: 'Attendance', section: null },
   { to: '/reports', icon: FileBarChart, label: 'Reports', section: 'ANALYTICS' },
   { to: '/history', icon: Clock, label: 'History', section: null },
 ]

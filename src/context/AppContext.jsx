@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { getAllTransactions, getAllEmployees, getAllOrders } from '../firebase/services'
+import { getAllTransactions, getAllEmployees, getAllOrders, getAttendanceSettings } from '../firebase/services'
 
 const AppContext = createContext(null)
 
@@ -47,6 +47,7 @@ export function AppProvider({ children }) {
   const [loadingTx, setLoadingTx] = useState(false)
   const [loadingEmp, setLoadingEmp] = useState(false)
   const [loadingOrd, setLoadingOrd] = useState(false)
+  const [attendanceSettings, setAttendanceSettings] = useState({ workStart: '09:00', workEnd: '17:00' })
   const [error, setError] = useState(null)
 
   const fetchTransactions = useCallback(async () => {
@@ -72,6 +73,15 @@ export function AppProvider({ children }) {
       console.error('fetchEmployees:', err)
     } finally {
       setLoadingEmp(false)
+    }
+  }, [])
+
+  const fetchAttendanceSettings = useCallback(async () => {
+    try {
+      const data = await getAttendanceSettings()
+      setAttendanceSettings(data)
+    } catch (err) {
+      console.error('fetchAttendanceSettings:', err)
     }
   }, [])
 
@@ -117,6 +127,9 @@ export function AppProvider({ children }) {
         loadingTx,
         loadingEmp,
         loadingOrd,
+        attendanceSettings,
+        setAttendanceSettings,
+        fetchAttendanceSettings,
         error,
         fetchTransactions,
         fetchEmployees,

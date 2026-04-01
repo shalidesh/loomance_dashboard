@@ -8,11 +8,12 @@ import Spinner from '../components/UI/Spinner'
 import { formatCurrency, calcSummary, getMonthlyChartData, unitLabel } from '../utils/formatters'
 
 export default function Dashboard() {
-  const { filteredTransactions, loadingTx, fetchTransactions, businessUnit } = useApp()
+  const { filteredTransactions, loadingTx, fetchTransactions, businessUnit, orders, fetchOrders, loadingOrd } = useApp()
 
   useEffect(() => {
     fetchTransactions()
-  }, [fetchTransactions])
+    fetchOrders()
+  }, [fetchTransactions, fetchOrders])
 
   const summary = useMemo(() => calcSummary(filteredTransactions), [filteredTransactions])
 
@@ -25,9 +26,26 @@ export default function Dashboard() {
     [filteredTransactions]
   )
 
+  // Income from orders collection for Garment Division:
+  // completed → full orderValue, in-progress → advancePaid only
+  const garmentOrderIncome = useMemo(
+    () =>
+      orders.reduce((sum, o) => {
+        if (o.status === 'completed') return sum + (Number(o.orderValue) || 0)
+        if (o.status === 'in-progress') return sum + (Number(o.advancePaid) || 0)
+        return sum
+      }, 0),
+    [orders]
+  )
+
+  // Only add order income when garment is in scope
+  const orderIncomeApplies = businessUnit === 'all' || businessUnit === 'garment'
+  const totalRevenue = summary.totalIncome + (orderIncomeApplies ? garmentOrderIncome : 0)
+  const netProfit = totalRevenue - summary.totalExpenses
+
   const chartData = useMemo(() => getMonthlyChartData(filteredTransactions), [filteredTransactions])
 
-  if (loadingTx) return <Spinner />
+  if (loadingTx || loadingOrd) return <Spinner />
 
   return (
     <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
@@ -45,7 +63,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SummaryCard
           title="Total Revenue"
-          value={formatCurrency(summary.totalIncome)}
+          value={formatCurrency(totalRevenue)}
           icon={TrendingUp}
           color="green"
           subtitle="All income recorded"
@@ -59,10 +77,10 @@ export default function Dashboard() {
         />
         <SummaryCard
           title="Net Profit"
-          value={formatCurrency(summary.netProfit)}
+          value={formatCurrency(netProfit)}
           icon={Wallet}
-          color={summary.netProfit >= 0 ? 'gold' : 'red'}
-          subtitle={summary.netProfit >= 0 ? 'Profitable period' : 'Loss period'}
+          color={netProfit >= 0 ? 'gold' : 'red'}
+          subtitle={netProfit >= 0 ? 'Profitable period' : 'Loss period'}
         />
       </div>
 
@@ -93,9 +111,9 @@ export default function Dashboard() {
                   <span className="text-cream text-sm font-medium">Garment Division</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <Metric label="Revenue" value={formatCurrency(garmentSummary.totalIncome)} color="text-green-400" />
+                  <Metric label="Revenue" value={formatCurrency(garmentSummary.totalIncome + garmentOrderIncome)} color="text-green-400" />
                   <Metric label="Expenses" value={formatCurrency(garmentSummary.totalExpenses)} color="text-red-400" />
-                  <Metric label="Profit" value={formatCurrency(garmentSummary.netProfit)} color={garmentSummary.netProfit >= 0 ? 'text-gold' : 'text-red-400'} />
+                  <Metric label="Profit" value={formatCurrency(garmentSummary.totalIncome + garmentOrderIncome - garmentSummary.totalExpenses)} color={(garmentSummary.totalIncome + garmentOrderIncome - garmentSummary.totalExpenses) >= 0 ? 'text-gold' : 'text-red-400'} />
                 </div>
               </div>
             </div>

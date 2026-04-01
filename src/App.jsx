@@ -10,6 +10,7 @@ import Expenses from './pages/Expenses'
 import Employees from './pages/Employees'
 import Reports from './pages/Reports'
 import History from './pages/History'
+import AttendancePage from './pages/Attendance'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="employees" element={<Employees />} />
             <Route path="reports" element={<Reports />} />
             <Route path="history" element={<History />} />
+            <Route path="attendance" element={<AttendancePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
